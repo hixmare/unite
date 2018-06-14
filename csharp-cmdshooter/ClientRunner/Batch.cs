@@ -5,6 +5,7 @@ namespace ClientRunner
 {
     public class Batch
     {
+        private ConsoleColor PreviousColor;
         private (Char[,] screen, Char[,] buffer) Tiles { get; set; }
         private ConsoleColor[,] ColorBuffer { get; }
 
@@ -53,18 +54,24 @@ namespace ClientRunner
         public void Draw()
         {
             Swap();
-            ClearBuffer();
 
             Console.SetCursorPosition(0, 0);
             for (var y = 0; y < Height; y++)
             {
                 for (var x = 0; x < Width; x++)
                 {
-                    Console.ForegroundColor = ColorBuffer[x, y];
+                    /* Change color only if it has to, as changing the foreground is costly */
+                    var color = ColorBuffer[x, y];
+                    if (!color.Equals(PreviousColor))
+                    {
+                        Console.ForegroundColor = color;
+                        PreviousColor = color;
+                    }
                     Console.Write(Tiles.screen[x, y]);
                 }
                 Console.Write(Environment.NewLine);
             }
+            ClearBuffer();
             ClearColorBuffer();
         }
 
